@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ArknightsImage
 {
@@ -10,8 +11,9 @@ namespace ArknightsImage
         static void Main(string[] args)
         {
             //获取alpha通道图片
-            string path = @"D:\解析数据\Texture2D";
-            string savePath = @"D:\解析数据\合成数据";
+            var path = @"D:\明日方舟素材\Texture2D";
+            //图片保存位置
+            var savePath = @"D:\明日方舟素材\合成数据";
             var root = new DirectoryInfo(path);
             var files = root.GetFiles();
             //获取所有alpha通道图片 过滤掉npc的 
@@ -19,12 +21,17 @@ namespace ArknightsImage
 
             foreach (var item in alphaList)
             {
-                Bitmap imgrgb = new Bitmap($"{path}\\{item.Replace("[alpha]", string.Empty)}");
-                Bitmap imgalpha = new Bitmap($"{path}\\{item}");
-                if (imgrgb.Width == 1024 && imgrgb.Height == 1024 && imgalpha.Width == 1024 && imgalpha.Height == 1024)
+                var rgbFileName = $"{path}\\{item.Replace("[alpha]", string.Empty)}";
+                if (File.Exists(rgbFileName))
                 {
-                    AlphaBlend(imgrgb, imgalpha).Save($"{savePath}\\{item.Replace("[alpha]", string.Empty)}", System.Drawing.Imaging.ImageFormat.Png);
-                    Console.WriteLine($"{item}导出成功");
+                    using (Bitmap imgrgb = new Bitmap(rgbFileName), imgalpha = new Bitmap($"{path}\\{item}"))
+                    {
+                        if (imgrgb.Width == 1024 && imgrgb.Height == 1024 && imgalpha.Width == 1024 && imgalpha.Height == 1024)
+                        {
+                            AlphaBlend(imgrgb, imgalpha).Save($"{savePath}\\{item.Replace("[alpha]", string.Empty)}", System.Drawing.Imaging.ImageFormat.Png);
+                            Console.WriteLine($"{item}导出成功");
+                        }
+                    };
                 }
             }
         }
