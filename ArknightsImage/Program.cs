@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using ArknightsImage.Properties;
 using Newtonsoft.Json.Linq;
@@ -35,7 +36,7 @@ namespace ArknightsImage
             var files = root.GetFiles();
             //获取所有alpha通道图片 过滤掉npc的 
             var alphaList = files.Select(fileInfo => Path.GetFileName(fileInfo.Name)).Where(x => x.Contains("[alpha].png") && idList.Any(x.Contains)).ToList();
-            const int taskNum = 20;
+            const int taskNum = 12;
             var taskHandleNum = alphaList.Count % taskNum == 0 ? alphaList.Count / taskNum : alphaList.Count / taskNum + 1;
             var taskList = new List<Task>();
             for (var i = 0; i < taskNum; i++)
@@ -54,7 +55,7 @@ namespace ArknightsImage
                             imgAlpha.Height != 1024) continue;
                         //将#号替换为_
                         AlphaBlend(imgRgb, imgAlpha).Save($"{savePath}\\{item.Replace("[alpha]", string.Empty).Replace("#", "_")}", System.Drawing.Imaging.ImageFormat.Png);
-                        Console.WriteLine($"{item}导出成功");
+                        Console.WriteLine($"{item}导出成功 线程id:{Thread.CurrentThread.ManagedThreadId}");
                     }
                 });
                 task.Start();
